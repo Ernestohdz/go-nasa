@@ -1,3 +1,3 @@
-module github.com/ernestohdz/nasa-client
+module github.com/ernestohdz/go-nasa
 
 go 1.17
