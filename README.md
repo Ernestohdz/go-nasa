@@ -22,6 +22,8 @@ The Go Client for Nasa Open APIs is a Go Client for the following Nasa Open APIs
 - [ ] **TLE API**: Two line element data for earth-orbiting objects at a given point in time
 - [ ] **Vesta/Moon/Mars Trek WMTS**: A Web Map Tile Service for the Vesta, Moon, and Mars Trek imagery projects
 
+More information on Nasa Open APIs can be found here https://api.nasa.gov/
+
 ## Nasa API Key
 
 Retrieve your personal API Key from https://api.nasa.gov/. If no API Key is given `"DEMO_KEY"` will be used as default.
