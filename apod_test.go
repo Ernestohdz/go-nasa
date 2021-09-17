@@ -1,7 +1,6 @@
 package nasa
 
 import (
-	"fmt"
 	"testing"
 	"time"
 )
@@ -60,5 +59,20 @@ func TestRateLimit(t *testing.T) {
 
 	client.ApodCount(10)
 
-	fmt.Println(client.rateLimit)
+}
+
+func TestInvalidDate(t *testing.T) {
+	client := NewClient()
+
+	date := "January 22, 2021"
+
+	options := &ApodOptions{
+		Date: date,
+	}
+
+	_, err := client.ApodWOpt(options)
+
+	if err == nil {
+		t.Errorf("invalid date not checked")
+	}
 }
