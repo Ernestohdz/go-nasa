@@ -23,9 +23,9 @@ type ApodResults struct {
 }
 
 type ApodOptions struct {
-	Date      time.Time
-	StartDate time.Time
-	EndDate   time.Time
+	Date      string
+	StartDate string
+	EndDate   string
 	Thumbs    bool
 }
 
@@ -49,8 +49,7 @@ func (c *Client) ApodWOpt(o *ApodOptions) (*ApodResults, error) {
 		return &data, nil
 	}
 
-	n := time.Time{}
-	if o.Date != n && (o.StartDate != n || o.EndDate != n) {
+	if o.Date != "" && (o.StartDate != "" || o.EndDate != "") {
 		return nil, fmt.Errorf("date option cannot be used with StartDate or EndDate")
 	}
 	q := req.URL.Query()
@@ -59,21 +58,31 @@ func (c *Client) ApodWOpt(o *ApodOptions) (*ApodResults, error) {
 		q.Add("thumbs", "true")
 	}
 
-	if o.Date != n {
-		q.Add("date", o.Date.Format(layoutISO))
+	if o.Date != "" {
+		p, err := time.Parse(layoutISO, o.Date)
+		if err != nil {
+			return nil, err
+		}
+		q.Add("date", p.Format(layoutISO))
 		req.URL.RawQuery = q.Encode()
-		err := c.send(req, &data)
+		err = c.send(req, &data)
 		if err != nil {
 			return nil, err
 		}
 		return &data, nil
 	}
-	if (o.StartDate == n && o.EndDate != n) || (o.StartDate != n && o.EndDate == n) {
+	if (o.StartDate == "" && o.EndDate != "") || (o.StartDate != "" && o.EndDate == "") {
 		return nil, fmt.Errorf("missing option StartDate or EndDate")
 	}
 
-	q.Add("start_date", o.StartDate.Format(layoutISO))
-	q.Add("end_date", o.EndDate.Format(layoutISO))
+	if _, err := time.Parse(layoutISO, o.StartDate); err != nil {
+		return nil, err
+	}
+	if _, err := time.Parse(layoutISO, o.EndDate); err != nil {
+		return nil, err
+	}
+	q.Add("start_date", o.StartDate)
+	q.Add("end_date", o.EndDate)
 
 	req.URL.RawQuery = q.Encode()
 	err = c.send(req, &data)

@@ -26,9 +26,8 @@ func TestApod(t *testing.T) {
 func TestApodWDate(t *testing.T) {
 	client := NewClient()
 
-	date := time.Date(2021, time.Month(1), 1, 0, 0, 0, 0, time.UTC)
 	params := &ApodOptions{
-		Date: date,
+		Date: "2021-09-14",
 	}
 
 	res, err := client.ApodWOpt(params)
@@ -37,7 +36,7 @@ func TestApodWDate(t *testing.T) {
 		return
 	}
 
-	if res.Date != date.Format(layoutISO) {
+	if res.Date != "2021-09-14" {
 		t.Errorf("incorrect date")
 	}
 }
