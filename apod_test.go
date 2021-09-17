@@ -38,3 +38,17 @@ func TestApodWDate(t *testing.T) {
 		t.Errorf("incorrect date")
 	}
 }
+
+func TestApodCount(t *testing.T) {
+	client := NewClient()
+
+	res, err := client.ApodCount(2)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if len(*res) != 2 {
+		t.Errorf("returns incorrect number of elements")
+	}
+}
