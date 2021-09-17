@@ -22,7 +22,7 @@ The Go Client for Nasa Open APIs is a Go Client for the following Nasa Open APIs
 - [ ] **TLE API**: Two line element data for earth-orbiting objects at a given point in time
 - [ ] **Vesta/Moon/Mars Trek WMTS**: A Web Map Tile Service for the Vesta, Moon, and Mars Trek imagery projects
 
-More information on Nasa Open APIs can be found here https://api.nasa.gov/
+More information on Nasa Open APIs can be found [here](https://api.nasa.gov/).
 
 ## Nasa API Key
 
@@ -51,16 +51,54 @@ import (
 
 func main() {
     // Default Client with DEMO_KEY
-    client := nasa.NewClient()
+    defaultClient := nasa.NewClient()
 
     // Create Client with your personal API Key
-    client := nasa.NewClient(nasa.WithKey("API_KEY"))
+    clientWKey := nasa.NewClient(nasa.WithKey("API_KEY"))
 
     // Create Client with personal API Key and configured HTTP Client
     c := &http.Client{
 		Timeout: 2 * time.Second,
 	}
-    client := nasa.NewClient(nasa.WithKey("API_KEY"), nasa.WithClient(c))
+    customeClient := nasa.NewClient(nasa.WithKey("API_KEY"), nasa.WithClient(c))
 }
 
+```
+
+### APOD Example
+---
+
+```go
+package main
+
+import (
+    "fmt"
+    "github.com/ernestohdz/go-nasa"
+)
+
+func main() {
+
+    client := nasa.NewClient()
+
+    result, err := client.Apod()
+
+    fmt.Println(*result)
+}
+
+```
+
+Output:
+```go
+type ApodResults struct {
+    // an optional return parameter copyright is returned if the image is not public domain
+	Copyright      string `json:"copyright"` 
+    
+	Date           string `json:"date"`
+	Explanation    string `json:"explanation"`
+	Hdurl          string `json:"hdurl"`
+	MediaType      string `json:"media_type"`
+	ServiceVersion string `json:"service_version"`
+	Title          string `json:"title"`
+	URL            string `json:"url"`
+}
 ```
