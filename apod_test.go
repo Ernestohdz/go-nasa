@@ -1,6 +1,7 @@
 package nasa
 
 import (
+	"fmt"
 	"testing"
 	"time"
 )
@@ -12,12 +13,13 @@ func TestApod(t *testing.T) {
 
 	if err != nil {
 		t.Error(err)
+		return
 	}
 
 	d := time.Now().Format(layoutISO)
 
 	if res.Date != d {
-		t.Errorf("date not matching")
+		t.Errorf("date not matching %v %v", res.Date, d)
 	}
 }
 
@@ -32,6 +34,7 @@ func TestApodWDate(t *testing.T) {
 	res, err := client.ApodWOpt(params)
 	if err != nil {
 		t.Error(err)
+		return
 	}
 
 	if res.Date != date.Format(layoutISO) {
@@ -46,9 +49,17 @@ func TestApodCount(t *testing.T) {
 
 	if err != nil {
 		t.Error(err)
+		return
 	}
 
 	if len(*res) != 2 {
 		t.Errorf("returns incorrect number of elements")
 	}
+}
+func TestRateLimit(t *testing.T) {
+	client := NewClient()
+
+	client.ApodCount(10)
+
+	fmt.Println(client.rateLimit)
 }

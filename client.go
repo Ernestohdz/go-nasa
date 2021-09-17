@@ -14,6 +14,7 @@ type Client struct {
 	baseURL    string
 	apiKey     string
 	httpClient *http.Client
+	rateLimit  int
 }
 
 type ClientOption func(*Client)
@@ -45,6 +46,10 @@ func WithClient(h *http.Client) ClientOption {
 	}
 }
 
+func (c *Client) RateLimit() int {
+	return c.rateLimit
+}
+
 func (c *Client) Key() string {
 	return c.apiKey
 }
@@ -65,5 +70,6 @@ func (c *Client) send(req *http.Request, d interface{}) error {
 	if res.StatusCode != http.StatusOK {
 		return fmt.Errorf(res.Status)
 	}
+	fmt.Sscan(res.Header.Get("X-RateLimit-Remaining"), &c.rateLimit)
 	return json.NewDecoder(res.Body).Decode(d)
 }
