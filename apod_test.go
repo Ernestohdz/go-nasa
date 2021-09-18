@@ -59,7 +59,7 @@ func TestApodCount(t *testing.T) {
 func TestRateLimit(t *testing.T) {
 	client := NewClient()
 
-	client.ApodCount(10)
+	client.ApodCount(1)
 
 }
 
