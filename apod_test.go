@@ -8,15 +8,17 @@ import (
 func TestApod(t *testing.T) {
 	client := NewClient()
 
-	res, err := client.Apod()
+	d := time.Now().Format(layoutISO)
+
+	o := &ApodOptions{
+		Date: d,
+	}
+	res, err := client.ApodWOpt(o)
 
 	if err != nil {
 		t.Error(err)
 		return
 	}
-
-	d := time.Now().Format(layoutISO)
-
 	if res.Date != d {
 		t.Errorf("date not matching %v %v", res.Date, d)
 	}
