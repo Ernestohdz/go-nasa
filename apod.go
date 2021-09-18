@@ -29,10 +29,12 @@ type ApodOptions struct {
 	Thumbs    bool
 }
 
+/* Returns Apod for today*/
 func (c *Client) Apod() (*ApodResults, error) {
 	return c.ApodWOpt(nil)
 }
 
+/* Returns Apod based on options */
 func (c *Client) ApodWOpt(o *ApodOptions) (*ApodResults, error) {
 	req, err := http.NewRequest("GET", apodEndpoint, nil)
 
@@ -92,9 +94,15 @@ func (c *Client) ApodWOpt(o *ApodOptions) (*ApodResults, error) {
 	return &data, nil
 }
 
+/* Randomly chosen images will be returned. Cannot be used with date or start_date and end_date */
 func (c *Client) ApodCount(count int) (*[]ApodResults, error) {
 	return c.countHelper(count, false)
 }
+
+/*
+	Randomly chosen images will be returned with thumbnails. Cannot be used with date or start_date and end_date.
+	If an APOD is not a video, this parameter is ignored.
+*/
 func (c *Client) ApodCountWThumbs(count int) (*[]ApodResults, error) {
 	return c.countHelper(count, true)
 }

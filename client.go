@@ -19,6 +19,7 @@ type Client struct {
 
 type ClientOption func(*Client)
 
+/* Returns new Client */
 func NewClient(options ...ClientOption) *Client {
 	c := &Client{
 		baseURL: url,
@@ -35,11 +36,15 @@ func NewClient(options ...ClientOption) *Client {
 	}
 	return c
 }
+
+/* Set API Key option */
 func WithKey(key string) ClientOption {
 	return func(c *Client) {
 		c.apiKey = key
 	}
 }
+
+/* Set HTTP Client option */
 func WithClient(h *http.Client) ClientOption {
 	return func(client *Client) {
 		client.httpClient = h

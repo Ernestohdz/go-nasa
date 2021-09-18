@@ -65,34 +65,57 @@ func main() {
 
 ```
 
-### APOD Example
+### APOD
 ---
 
+Grabbing the APOD for today
+
 ```go
-package main
-
-import (
-    "fmt"
-    "github.com/ernestohdz/go-nasa"
-)
-
 func main() {
-
     client := nasa.NewClient()
 
     result, err := client.Apod()
 
     fmt.Println(*result)
 }
-
 ```
 
-Output:
+Grabbing the APOD for a specific date
+
+```go
+func main() {
+    client := nasa.NewClient()
+
+    options := &ApodOptions{
+        Date: "2021-01-01"
+    }
+
+    res, err := nasa.ApodWOpt(options)
+}
+```
+
+More Apod Options:
+```go
+ApodOptions{
+    StartDate:  time.Time
+    EndDate:    time.Time
+    Date:       time.Time
+    Thumbs:     bool
+}
+
+```
+More Apod functions:
+```go
+ApodCount(int)
+ApodCountWThumbs(int)
+```
+
+Output
 ```go
 type ApodResults struct {
     // an optional return parameter copyright is returned if the image is not public domain
 	Copyright      string `json:"copyright"` 
-    
+
 	Date           string `json:"date"`
 	Explanation    string `json:"explanation"`
 	Hdurl          string `json:"hdurl"`
