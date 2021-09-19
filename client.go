@@ -2,12 +2,10 @@ package nasa
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
-)
-
-const (
-	url = "https://api.nasa.gov/"
+	"net/url"
 )
 
 type Client struct {
@@ -21,9 +19,7 @@ type ClientOption func(*Client)
 
 /* Returns new Client */
 func NewClient(options ...ClientOption) *Client {
-	c := &Client{
-		baseURL: url,
-	}
+	c := &Client{}
 
 	for _, op := range options {
 		op(c)
@@ -51,6 +47,12 @@ func WithClient(h *http.Client) ClientOption {
 	}
 }
 
+func WithBaseURL(url string) ClientOption {
+	return func(c *Client) {
+		c.baseURL = url
+	}
+}
+
 func (c *Client) RateLimit() int {
 	return c.rateLimit
 }
@@ -62,19 +64,51 @@ func (c *Client) HttpClient() *http.Client {
 	return c.httpClient
 }
 
-func (c *Client) send(req *http.Request, d interface{}) error {
-	q := req.URL.Query()
-	q.Add("api_key", c.apiKey)
-	req.URL.RawQuery = q.Encode()
+type apiConfig struct {
+	host string
+	path string
+}
 
-	res, err := c.httpClient.Do(req)
+type apiRequest interface {
+	params() url.Values
+}
+
+func (c *Client) get(config *apiConfig, apiReq apiRequest) (*http.Response, error) {
+
+	host := config.host
+	if c.baseURL != "" {
+		host = c.baseURL
+	}
+
+	httpReq, err := http.NewRequest("GET", host+config.path, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// add queries
+	httpReq.URL.RawQuery = c.generateQuery(apiReq.params())
+
+	return c.httpClient.Do(httpReq)
+}
+
+func (c *Client) getJSON(config *apiConfig, apiReq apiRequest, d interface{}) error {
+	res, err := c.get(config, apiReq)
+
 	if err != nil {
 		return err
 	}
+	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf(res.Status)
+		return errors.New(res.Status)
 	}
 	fmt.Sscan(res.Header.Get("X-RateLimit-Remaining"), &c.rateLimit)
 	return json.NewDecoder(res.Body).Decode(d)
+}
+
+func (c *Client) generateQuery(q url.Values) string {
+	q.Set("api_key", c.apiKey)
+
+	return q.Encode()
 }

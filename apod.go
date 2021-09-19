@@ -1,15 +1,20 @@
 package nasa
 
 import (
+	"errors"
 	"fmt"
-	"net/http"
+	"net/url"
 	"time"
 )
 
 const (
-	apodEndpoint = "https://api.nasa.gov/planetary/apod"
-	layoutISO    = "2006-01-02"
+	layoutISO = "2006-01-02"
 )
+
+var apodAPI = &apiConfig{
+	host: "https://api.nasa.gov",
+	path: "/planetary/apod",
+}
 
 type ApodResults struct {
 	Copyright      string `json:"copyright"`
@@ -29,73 +34,92 @@ type ApodOptions struct {
 	Thumbs    bool
 }
 
+func (a *ApodOptions) params() url.Values {
+	q := make(url.Values)
+	if a == nil {
+		return q
+	}
+	if a.Date != "" {
+		q.Set("date", a.Date)
+	}
+	if a.StartDate != "" {
+		q.Set("start_date", a.StartDate)
+	}
+	if a.EndDate != "" {
+		q.Set("end_date", a.EndDate)
+	}
+	if a.Thumbs {
+		q.Set("thumbs", "true")
+	}
+	return q
+}
+
 /* Returns Apod for today*/
-func (c *Client) Apod() (*ApodResults, error) {
+func (c *Client) Apod() ([]ApodResults, error) {
 	return c.ApodWOpt(nil)
 }
 
-/* Returns Apod based on options */
-func (c *Client) ApodWOpt(o *ApodOptions) (*ApodResults, error) {
-	req, err := http.NewRequest("GET", apodEndpoint, nil)
-
-	if err != nil {
-		return nil, err
-	}
-
+func (c *Client) ApodWOpt(options *ApodOptions) ([]ApodResults, error) {
 	var data ApodResults
-	if o == nil {
-		err = c.send(req, &data)
+
+	// set it as ApodResults then only set array if its startdate - end date
+	// then for regular date create of size 0
+	if options == nil {
+		err := c.getJSON(apodAPI, options, &data)
 		if err != nil {
 			return nil, err
 		}
-		return &data, nil
+		d := []ApodResults{data}
+		return d, nil
 	}
-
-	if o.Date != "" && (o.StartDate != "" || o.EndDate != "") {
-		return nil, fmt.Errorf("date option cannot be used with StartDate or EndDate")
+	if options.Date != "" && (options.StartDate != "" || options.EndDate != "") {
+		return nil, errors.New("date options cannot be used with StartDate and EndDate")
 	}
-	q := req.URL.Query()
-
-	if o.Thumbs {
-		q.Add("thumbs", "true")
-	}
-
-	if o.Date != "" {
-		p, err := time.Parse(layoutISO, o.Date)
+	if options.Date != "" {
+		if _, err := time.Parse(layoutISO, options.Date); err != nil {
+			return nil, err
+		}
+		err := c.getJSON(apodAPI, options, &data)
 		if err != nil {
 			return nil, err
 		}
-		q.Add("date", p.Format(layoutISO))
-		req.URL.RawQuery = q.Encode()
-		err = c.send(req, &data)
-		if err != nil {
-			return nil, err
-		}
-		return &data, nil
+		d := []ApodResults{data}
+		return d, nil
 	}
-	if (o.StartDate == "" && o.EndDate != "") || (o.StartDate != "" && o.EndDate == "") {
-		return nil, fmt.Errorf("missing option StartDate or EndDate")
+	if (options.StartDate == "" && options.EndDate != "") || (options.StartDate != "" && options.EndDate == "") {
+		return nil, errors.New("StartDate/EndDate option missing EndDate/StartDate option")
 	}
+	if _, err := time.Parse(layoutISO, options.StartDate); err != nil {
+		return nil, errors.New("incorrect StartDate format")
+	}
+	if _, err := time.Parse(layoutISO, options.EndDate); err != nil {
+		return nil, errors.New("incorrect EndDate format")
+	}
+	var arr []ApodResults
+	err := c.getJSON(apodAPI, options, &arr)
 
-	if _, err := time.Parse(layoutISO, o.StartDate); err != nil {
-		return nil, err
-	}
-	if _, err := time.Parse(layoutISO, o.EndDate); err != nil {
-		return nil, err
-	}
-	q.Add("start_date", o.StartDate)
-	q.Add("end_date", o.EndDate)
-
-	req.URL.RawQuery = q.Encode()
-	err = c.send(req, &data)
 	if err != nil {
 		return nil, err
 	}
-	return &data, nil
+	return arr, nil
+}
+
+type countOptions struct {
+	count  int
+	thumbs bool
+}
+
+func (c *countOptions) params() url.Values {
+	q := make(url.Values)
+	q.Set("count", fmt.Sprint(c.count))
+	if c.thumbs {
+		q.Set("thumbs", "true")
+	}
+	return q
 }
 
 /* Randomly chosen images will be returned. Cannot be used with date or start_date and end_date */
-func (c *Client) ApodCount(count int) (*[]ApodResults, error) {
+func (c *Client) ApodCount(count int) ([]ApodResults, error) {
 	return c.countHelper(count, false)
 }
 
@@ -103,21 +127,18 @@ func (c *Client) ApodCount(count int) (*[]ApodResults, error) {
 	Randomly chosen images will be returned with thumbnails. Cannot be used with date or start_date and end_date.
 	If an APOD is not a video, this parameter is ignored.
 */
-func (c *Client) ApodCountWThumbs(count int) (*[]ApodResults, error) {
+func (c *Client) ApodCountWThumbs(count int) ([]ApodResults, error) {
 	return c.countHelper(count, true)
 }
-func (c *Client) countHelper(count int, thumbs bool) (*[]ApodResults, error) {
+func (c *Client) countHelper(count int, thumbs bool) ([]ApodResults, error) {
 	var arr []ApodResults
-	req, _ := http.NewRequest("GET", apodEndpoint, nil)
-	q := req.URL.Query()
-	if thumbs {
-		q.Add("thumbs", "true")
+	options := &countOptions{
+		count:  count,
+		thumbs: thumbs,
 	}
-	q.Add("count", fmt.Sprint(count))
-	req.URL.RawQuery = q.Encode()
-	err := c.send(req, &arr)
+	err := c.getJSON(apodAPI, options, &arr)
 	if err != nil {
 		return nil, err
 	}
-	return &arr, nil
+	return arr, nil
 }
