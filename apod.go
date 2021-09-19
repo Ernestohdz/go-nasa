@@ -16,7 +16,9 @@ var apodAPI = &apiConfig{
 	path: "/planetary/apod",
 }
 
+// ApodResults is the struct representation of NASA's APOD response
 type ApodResults struct {
+	// Copyright is returned if the image is not public domain
 	Copyright      string `json:"copyright"`
 	Date           string `json:"date"`
 	Explanation    string `json:"explanation"`
@@ -27,11 +29,17 @@ type ApodResults struct {
 	URL            string `json:"url"`
 }
 
+// ApodOptions is the funtional options struct for Apod
 type ApodOptions struct {
-	Date      string
+	// The date of the APOD image to retrieve
+	Date string
+	// The start of a date range, when requesting date for a range of dates.
+	// Cannot be used with date.
 	StartDate string
-	EndDate   string
-	Thumbs    bool
+	// The end of the date range, when used with start_date.
+	EndDate string
+	// Return the URL of video thumbnail. If an APOD is not a video, this parameter is ignored.
+	Thumbs bool
 }
 
 func (a *ApodOptions) params() url.Values {
@@ -54,16 +62,15 @@ func (a *ApodOptions) params() url.Values {
 	return q
 }
 
-/* Returns Apod for today*/
+// Apod sends an Apod request and retrieves response
 func (c *Client) Apod() ([]ApodResults, error) {
 	return c.ApodWOpt(nil)
 }
 
+// ApodWOpt sends an Apod request with options provided and retrieves response
 func (c *Client) ApodWOpt(options *ApodOptions) ([]ApodResults, error) {
 	var data ApodResults
 
-	// set it as ApodResults then only set array if its startdate - end date
-	// then for regular date create of size 0
 	if options == nil {
 		err := c.getJSON(apodAPI, options, &data)
 		if err != nil {
@@ -118,15 +125,13 @@ func (c *countOptions) params() url.Values {
 	return q
 }
 
-/* Randomly chosen images will be returned. Cannot be used with date or start_date and end_date */
+// Randomly chosen images will be returned. Cannot be used with date or start_date and end_date
 func (c *Client) ApodCount(count int) ([]ApodResults, error) {
 	return c.countHelper(count, false)
 }
 
-/*
-	Randomly chosen images will be returned with thumbnails. Cannot be used with date or start_date and end_date.
-	If an APOD is not a video, this parameter is ignored.
-*/
+// Randomly chosen images will be returned with thumbnails. Cannot be used with date or start_date and end_date.
+// If an APOD is not a video, this parameter is ignored.
 func (c *Client) ApodCountWThumbs(count int) ([]ApodResults, error) {
 	return c.countHelper(count, true)
 }
