@@ -68,6 +68,8 @@ func main() {
 ### APOD
 ---
 
+Note: All responses will return an array of ApodResults. Including Apod() which will return an array of size 1.
+
 Grabbing the APOD for today
 
 ```go
@@ -76,7 +78,7 @@ func main() {
 
     result, err := client.Apod()
 
-    fmt.Println(*result)
+    fmt.Println(result[0])
 }
 ```
 
@@ -91,6 +93,7 @@ func main() {
     }
 
     res, err := nasa.ApodWOpt(options)
+    fmt.Println(res[0])
 }
 ```
 
@@ -110,7 +113,7 @@ ApodCount(int)
 ApodCountWThumbs(int)
 ```
 
-Output
+Output is an array of:
 ```go
 type ApodResults struct {
     // an optional return parameter copyright is returned if the image is not public domain

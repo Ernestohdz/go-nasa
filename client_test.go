@@ -36,3 +36,17 @@ func TestSetHTTPClient(t *testing.T) {
 		t.Errorf("http client not set")
 	}
 }
+
+func TestGetters(t *testing.T) {
+	client := NewClient(WithKey("random"))
+
+	if client.Key() != "random" {
+		t.Errorf("incorrect client api key set")
+	}
+	if client.HttpClient() != http.DefaultClient {
+		t.Errorf("incorrect http client set")
+	}
+	if client.RateLimit() != 0 {
+		t.Errorf("incorrect rate limit set")
+	}
+}

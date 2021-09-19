@@ -2,6 +2,7 @@ package nasa
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -46,7 +47,7 @@ func WithClient(h *http.Client) ClientOption {
 	}
 }
 
-func WithBase(url string) ClientOption {
+func WithBaseURL(url string) ClientOption {
 	return func(c *Client) {
 		c.baseURL = url
 	}
@@ -62,23 +63,6 @@ func (c *Client) Key() string {
 func (c *Client) HttpClient() *http.Client {
 	return c.httpClient
 }
-
-// func (c *Client) send(req *http.Request, d interface{}) error {
-// 	q := req.URL.Query()
-// 	q.Add("api_key", c.apiKey)
-// 	req.URL.RawQuery = q.Encode()
-
-// 	res, err := c.httpClient.Do(req)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	if res.StatusCode != http.StatusOK {
-// 		return fmt.Errorf(res.Status)
-// 	}
-// 	fmt.Sscan(res.Header.Get("X-RateLimit-Remaining"), &c.rateLimit)
-// 	return json.NewDecoder(res.Body).Decode(d)
-// }
 
 type apiConfig struct {
 	host string
@@ -117,7 +101,7 @@ func (c *Client) getJSON(config *apiConfig, apiReq apiRequest, d interface{}) er
 	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf(res.Status)
+		return errors.New(res.Status)
 	}
 	fmt.Sscan(res.Header.Get("X-RateLimit-Remaining"), &c.rateLimit)
 	return json.NewDecoder(res.Body).Decode(d)
