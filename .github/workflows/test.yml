@@ -18,3 +18,4 @@ jobs:
 
       - name: Go Tests
         run: go test -v -tags=integration
+        run: go test -cover
