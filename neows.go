@@ -1,9 +1,15 @@
 package nasa
 
 import (
-	"encoding/json"
-	"net/http"
+	"errors"
+	"net/url"
+	"time"
 )
+
+var neowAPI = &apiConfig{
+	host: "https://api.nasa.gov",
+	path: "/neo/rest/v1/feed",
+}
 
 type diameter struct {
 	Min float64 `json:"estimated_diameter_min"`
@@ -57,23 +63,55 @@ type NeoWResult struct {
 	NearEarthObjects map[string][]Asteroid `json:"near_earth_objects"`
 }
 
+type NeoOptions struct {
+	StartDate string
+	EndDate   string
+}
+
+func (n *NeoOptions) params() url.Values {
+	q := make(url.Values)
+	if n == nil {
+		return q
+	}
+	if n.StartDate != "" {
+		q.Set("start_date", n.StartDate)
+	}
+	if n.EndDate != "" {
+		q.Set("end_date", n.EndDate)
+	}
+	return q
+}
+
 func (c *Client) NeoW() (*NeoWResult, error) {
+	return c.NeoWOpt(nil)
+}
 
-	url := "https://api.nasa.gov/neo/rest/v1/feed?start_date=2021-09-18&end_date=2021-09-19&api_key=DEMO_KEY"
+func (c *Client) NeoWOpt(options *NeoOptions) (*NeoWResult, error) {
+	var result NeoWResult
 
-	request, _ := http.NewRequest("GET", url, nil)
+	if options == nil || (options.StartDate == "" && options.EndDate == "") {
+		err := c.getJSON(neowAPI, options, &result)
+		if err != nil {
+			return nil, err
+		}
+		return &result, nil
+	}
+	if options.StartDate == "" && options.EndDate != "" {
+		return nil, errors.New("no StartDate provided")
+	}
 
-	resp, err := c.httpClient.Do(request)
+	if _, err := time.Parse(layoutISO, options.StartDate); err != nil {
+		return nil, err
+	}
+	if _, err := time.Parse(layoutISO, options.EndDate); err != nil {
+		return nil, err
+	}
+
+	err := c.getJSON(neowAPI, options, &result)
 
 	if err != nil {
 		return nil, err
 	}
 
-	var body NeoWResult
-	err = json.NewDecoder(resp.Body).Decode(&body)
-	if err != nil {
-		return nil, err
-	}
-
-	return &body, nil
+	return &result, nil
 }

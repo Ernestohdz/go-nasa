@@ -12,6 +12,7 @@ func TestNeo(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("%s", err)
+		return
 	}
 
 	fmt.Printf("%+v\n", *resp)

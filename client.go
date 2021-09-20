@@ -8,6 +8,10 @@ import (
 	"net/url"
 )
 
+const (
+	layoutISO = "2006-01-02"
+)
+
 type Client struct {
 	baseURL    string
 	apiKey     string
