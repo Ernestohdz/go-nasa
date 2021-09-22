@@ -53,22 +53,30 @@ type Asteroid struct {
 	CloseApproachData              []closeApproachData `json:"close_approach_data"`
 	IsSentryObject                 bool                `json:"is_sentry_object"`
 }
+
+// NeoWResult is the struct representation of NASA's Asteroid NeoWs response
 type NeoWResult struct {
+	// structure contains the links of prev, next, and self feeds.
 	Links struct {
 		Next string `json:"next"`
 		Prev string `json:"prev"`
 		Self string `json:"self"`
 	} `json:"links"`
-	ElementCount     int                   `json:"element_count"`
+	// total number of near earth objects
+	ElementCount int `json:"element_count"`
+	// Contains dates mapping to an array of Asteroid objects
 	NearEarthObjects map[string][]Asteroid `json:"near_earth_objects"`
 }
 
-type NeoOptions struct {
+// NeoWOptions is the optins struct for NeoW
+type NeoWOptions struct {
+	// search from specific start date
 	StartDate string
-	EndDate   string
+	// end search at specific end date
+	EndDate string
 }
 
-func (n *NeoOptions) params() url.Values {
+func (n *NeoWOptions) params() url.Values {
 	q := make(url.Values)
 	if n == nil {
 		return q
@@ -82,11 +90,14 @@ func (n *NeoOptions) params() url.Values {
 	return q
 }
 
+// NeoW function returns a 7 day feed, starting from current date, of near earth objects
 func (c *Client) NeoW() (*NeoWResult, error) {
 	return c.NeoWOpt(nil)
 }
 
-func (c *Client) NeoWOpt(options *NeoOptions) (*NeoWResult, error) {
+// NeoWOpt returns a custom feed with given options for a range of dates of near
+// earth objects
+func (c *Client) NeoWOpt(options *NeoWOptions) (*NeoWResult, error) {
 	var result NeoWResult
 
 	if options == nil || (options.StartDate == "" && options.EndDate == "") {

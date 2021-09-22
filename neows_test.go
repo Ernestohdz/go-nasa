@@ -1228,7 +1228,7 @@ func TestNeoOptions(t *testing.T) {
 
 	c := NewClient(WithBaseURL(server.URL))
 	// start_date=2015-09-07&end_date=2015-09-08
-	options := &NeoOptions{
+	options := &NeoWOptions{
 		StartDate: "2015-09-07",
 		EndDate:   "2015-09-08",
 	}
@@ -1247,7 +1247,7 @@ func TestNeoOptions(t *testing.T) {
 }
 
 func TestNeoMissingStartDate(t *testing.T) {
-	options := &NeoOptions{
+	options := &NeoWOptions{
 		EndDate: "2015-09-08",
 	}
 	c := NewClient()
@@ -1261,7 +1261,7 @@ func TestNeoMissingStartDate(t *testing.T) {
 }
 
 func TestNeoWrongStartFormat(t *testing.T) {
-	options := &NeoOptions{
+	options := &NeoWOptions{
 		StartDate: "March 20, 2021",
 	}
 	c := NewClient()
@@ -1273,7 +1273,7 @@ func TestNeoWrongStartFormat(t *testing.T) {
 	}
 }
 func TestNeoWrongEndFormat(t *testing.T) {
-	options := &NeoOptions{
+	options := &NeoWOptions{
 		StartDate: "2021-01-01",
 		EndDate:   "March 20, 2021",
 	}
@@ -1300,7 +1300,7 @@ func TestNeoOptUnexpectedError(t *testing.T) {
 
 	c := NewClient(WithBaseURL("%"))
 
-	options := &NeoOptions{
+	options := &NeoWOptions{
 		StartDate: "2021-01-01",
 		EndDate:   "2021-01-02",
 	}
