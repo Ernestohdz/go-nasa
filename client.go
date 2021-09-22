@@ -19,9 +19,11 @@ type Client struct {
 	rateLimit  int
 }
 
+// ClientOption is the type constructor options for NewClient(...)
 type ClientOption func(*Client)
 
-/* Returns new Client */
+// NewClient constructs a new Client that can make requests to
+// NASA's Open APIs
 func NewClient(options ...ClientOption) *Client {
 	c := &Client{}
 
@@ -37,33 +39,38 @@ func NewClient(options ...ClientOption) *Client {
 	return c
 }
 
-/* Set API Key option */
+// WithKey configures Client with an API key
 func WithKey(key string) ClientOption {
 	return func(c *Client) {
 		c.apiKey = key
 	}
 }
 
-/* Set HTTP Client option */
+// WithClient configures Client with an http.Client
 func WithClient(h *http.Client) ClientOption {
 	return func(client *Client) {
 		client.httpClient = h
 	}
 }
 
+// WithBaseURL configures Client to use a custom base url
 func WithBaseURL(url string) ClientOption {
 	return func(c *Client) {
 		c.baseURL = url
 	}
 }
 
+// RateLimit returns the current remaining api calls
 func (c *Client) RateLimit() int {
 	return c.rateLimit
 }
 
+// Returns Client's api key
 func (c *Client) Key() string {
 	return c.apiKey
 }
+
+// Returns Client's http.Client
 func (c *Client) HttpClient() *http.Client {
 	return c.httpClient
 }
@@ -90,7 +97,6 @@ func (c *Client) get(config *apiConfig, apiReq apiRequest) (*http.Response, erro
 		return nil, err
 	}
 
-	// add queries
 	httpReq.URL.RawQuery = c.generateQuery(apiReq.params())
 
 	return c.httpClient.Do(httpReq)
