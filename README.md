@@ -1,6 +1,6 @@
 # Go Client for Nasa Open APIs
 
-![Tests](https://github.com/ernestohdz/go-nasa/actions/workflows/test.yml/badge.svg)
+![Build Status](https://github.com/ernestohdz/go-nasa/actions/workflows/test.yml/badge.svg)
 [![Go Reference](https://pkg.go.dev/badge/github.com/ernestohdz/go-nasa.svg)](https://pkg.go.dev/github.com/ernestohdz/go-nasa)
 
 ## Description
