@@ -7,10 +7,6 @@ import (
 	"time"
 )
 
-const (
-	layoutISO = "2006-01-02"
-)
-
 var apodAPI = &apiConfig{
 	host: "https://api.nasa.gov",
 	path: "/planetary/apod",

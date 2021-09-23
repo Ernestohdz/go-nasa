@@ -1,5 +1,8 @@
 # Go Client for Nasa Open APIs
 
+![Build Status](https://github.com/ernestohdz/go-nasa/actions/workflows/test.yml/badge.svg)
+[![Go Reference](https://pkg.go.dev/badge/github.com/ernestohdz/go-nasa.svg)](https://pkg.go.dev/github.com/ernestohdz/go-nasa)
+
 ## Description
 
 The Go Client for Nasa Open APIs is a Go Client for the following Nasa Open APIs:
