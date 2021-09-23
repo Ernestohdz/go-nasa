@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var neowAPI = &apiConfig{
+var neoAPI = &apiConfig{
 	host: "https://api.nasa.gov",
 	path: "/neo/rest/v1/feed",
 }
@@ -34,7 +34,8 @@ type closeApproachData struct {
 	OrbitingBody string `json:"orbiting_body"`
 }
 
-type Asteroid struct {
+// Near Earth Objects(NEO) struct representation for NeoWResults
+type NEO struct {
 	Links struct {
 		Self string `json:"self"`
 	} `json:"links"`
@@ -54,8 +55,8 @@ type Asteroid struct {
 	IsSentryObject                 bool                `json:"is_sentry_object"`
 }
 
-// NeoWResult is the struct representation of NASA's Asteroid NeoWs response
-type NeoWResult struct {
+// NeoFeedResult is the struct representation of NASA's Asteroid NeoWs response
+type NeoFeedResult struct {
 	// structure contains the links of prev, next, and self feeds.
 	Links struct {
 		Next string `json:"next"`
@@ -65,18 +66,18 @@ type NeoWResult struct {
 	// total number of near earth objects
 	ElementCount int `json:"element_count"`
 	// Contains dates mapping to an array of Asteroid objects
-	NearEarthObjects map[string][]Asteroid `json:"near_earth_objects"`
+	NearEarthObjects map[string][]NEO `json:"near_earth_objects"`
 }
 
-// NeoWOptions is the optins struct for NeoW
-type NeoWOptions struct {
+// NeoFeedOptions is the optins struct for NeoW
+type NeoFeedOptions struct {
 	// search from specific start date
 	StartDate string
 	// end search at specific end date
 	EndDate string
 }
 
-func (n *NeoWOptions) params() url.Values {
+func (n *NeoFeedOptions) params() url.Values {
 	q := make(url.Values)
 	if n == nil {
 		return q
@@ -90,18 +91,18 @@ func (n *NeoWOptions) params() url.Values {
 	return q
 }
 
-// NeoW function returns a 7 day feed, starting from current date, of near earth objects
-func (c *Client) NeoW() (*NeoWResult, error) {
-	return c.NeoWOpt(nil)
+// NeoFeed function returns a 7 day feed, starting from current date, of near earth objects
+func (c *Client) NeoFeed() (*NeoFeedResult, error) {
+	return c.NeoFeedWOpt(nil)
 }
 
-// NeoWOpt returns a custom feed with given options for a range of dates of near
+// NeoFeedWOpt returns a custom feed with given options for a range of dates of near
 // earth objects
-func (c *Client) NeoWOpt(options *NeoWOptions) (*NeoWResult, error) {
-	var result NeoWResult
+func (c *Client) NeoFeedWOpt(options *NeoFeedOptions) (*NeoFeedResult, error) {
+	var result NeoFeedResult
 
 	if options == nil || (options.StartDate == "" && options.EndDate == "") {
-		err := c.getJSON(neowAPI, options, &result)
+		err := c.getJSON(neoAPI, options, &result)
 		if err != nil {
 			return nil, err
 		}
@@ -118,7 +119,7 @@ func (c *Client) NeoWOpt(options *NeoWOptions) (*NeoWResult, error) {
 		return nil, err
 	}
 
-	err := c.getJSON(neowAPI, options, &result)
+	err := c.getJSON(neoAPI, options, &result)
 
 	if err != nil {
 		return nil, err

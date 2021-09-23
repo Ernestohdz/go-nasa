@@ -1203,13 +1203,13 @@ func TestNeo(t *testing.T) {
 	defer server.Close()
 	c := NewClient(WithBaseURL(server.URL))
 
-	resp, err := c.NeoW()
+	resp, err := c.NeoFeed()
 	if err != nil {
 		t.Errorf("returned error %s\n", err)
 		return
 	}
 
-	correctResponse := NeoWResult{}
+	correctResponse := NeoFeedResult{}
 
 	err = json.Unmarshal([]byte(mockData), &correctResponse)
 	if err != nil {
@@ -1228,17 +1228,17 @@ func TestNeoOptions(t *testing.T) {
 
 	c := NewClient(WithBaseURL(server.URL))
 	// start_date=2015-09-07&end_date=2015-09-08
-	options := &NeoWOptions{
+	options := &NeoFeedOptions{
 		StartDate: "2015-09-07",
 		EndDate:   "2015-09-08",
 	}
-	resp, err := c.NeoWOpt(options)
+	resp, err := c.NeoFeedWOpt(options)
 
 	if err != nil {
 		t.Errorf("unexpected error: %s\n", err)
 		return
 	}
-	correctResponse := NeoWResult{}
+	correctResponse := NeoFeedResult{}
 	json.Unmarshal([]byte(mockData), &correctResponse)
 
 	if !reflect.DeepEqual(correctResponse, *resp) {
@@ -1247,12 +1247,12 @@ func TestNeoOptions(t *testing.T) {
 }
 
 func TestNeoMissingStartDate(t *testing.T) {
-	options := &NeoWOptions{
+	options := &NeoFeedOptions{
 		EndDate: "2015-09-08",
 	}
 	c := NewClient()
 
-	_, err := c.NeoWOpt(options)
+	_, err := c.NeoFeedWOpt(options)
 
 	if err == nil {
 		t.Errorf("expected error received nil")
@@ -1261,25 +1261,25 @@ func TestNeoMissingStartDate(t *testing.T) {
 }
 
 func TestNeoWrongStartFormat(t *testing.T) {
-	options := &NeoWOptions{
+	options := &NeoFeedOptions{
 		StartDate: "March 20, 2021",
 	}
 	c := NewClient()
 
-	_, err := c.NeoWOpt(options)
+	_, err := c.NeoFeedWOpt(options)
 
 	if err == nil {
 		t.Errorf("expected error received nil")
 	}
 }
 func TestNeoWrongEndFormat(t *testing.T) {
-	options := &NeoWOptions{
+	options := &NeoFeedOptions{
 		StartDate: "2021-01-01",
 		EndDate:   "March 20, 2021",
 	}
 	c := NewClient()
 
-	_, err := c.NeoWOpt(options)
+	_, err := c.NeoFeedWOpt(options)
 
 	if err == nil {
 		t.Errorf("expected error received nil")
@@ -1289,7 +1289,7 @@ func TestNeoWrongEndFormat(t *testing.T) {
 func TestNeoUnexpectedError(t *testing.T) {
 	c := NewClient(WithBaseURL("%"))
 
-	_, err := c.NeoW()
+	_, err := c.NeoFeed()
 
 	if err == nil {
 		t.Errorf("expected error received nil")
@@ -1300,11 +1300,11 @@ func TestNeoOptUnexpectedError(t *testing.T) {
 
 	c := NewClient(WithBaseURL("%"))
 
-	options := &NeoWOptions{
+	options := &NeoFeedOptions{
 		StartDate: "2021-01-01",
 		EndDate:   "2021-01-02",
 	}
-	_, err := c.NeoWOpt(options)
+	_, err := c.NeoFeedWOpt(options)
 
 	if err == nil {
 		t.Errorf("expected error received nil")
