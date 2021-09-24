@@ -8,7 +8,7 @@
 The Go Client for Nasa Open APIs is a Go Client for the following Nasa Open APIs:
 
 - [x] **APOD**: Astronomy Picture of the Day
-- [ ] **Asteroids NeoWs**: Near Earth Object Web Service
+- [x] **Asteroids NeoWs**: Near Earth Object Web Service
 - [ ] **DONKI**: Space Weather Database of Notifications, Knowledge, Information
 - [ ] **Earth**: Unlock the significant public investment in earth observation data
 - [ ] **EONET**: The Earth Observatory Natural Event Tracker
