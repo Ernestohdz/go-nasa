@@ -75,11 +75,22 @@ func (r *RoverOptions) params() url.Values {
 func (c *Client) SpiritRover() (*RoverResult, error) {
 	return c.helper(spiritAPI, nil)
 }
+func (c *Client) SpiritRoverWOpt(options *RoverOptions) (*RoverResult, error) {
+	return c.helper(spiritAPI, options)
+}
+
 func (c *Client) CuriosityRover() (*RoverResult, error) {
 	return c.helper(curiosityAPI, nil)
 }
+func (c *Client) CuriosityRoverWOpt(options *RoverOptions) (*RoverResult, error) {
+	return c.helper(curiosityAPI, options)
+}
+
 func (c *Client) OpportunityRover() (*RoverResult, error) {
 	return c.helper(opportunityAPI, nil)
+}
+func (c *Client) OpportunityRoverWOpt(options *RoverOptions) (*RoverResult, error) {
+	return c.helper(opportunityAPI, options)
 }
 
 func (c *Client) helper(rover *apiConfig, options *RoverOptions) (*RoverResult, error) {
