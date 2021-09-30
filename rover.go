@@ -96,7 +96,7 @@ func (c *Client) OpportunityRoverWOpt(options *RoverOptions) (*RoverResult, erro
 func (c *Client) helper(rover *apiConfig, options *RoverOptions) (*RoverResult, error) {
 	var result RoverResult
 	if options == nil {
-		err := c.getJSON(rover, options, result)
+		err := c.getJSON(rover, options, &result)
 		if err != nil {
 			return nil, err
 		}
@@ -108,7 +108,7 @@ func (c *Client) helper(rover *apiConfig, options *RoverOptions) (*RoverResult, 
 	if _, err := time.Parse(layoutISO, options.EarthDate); options.EarthDate != "" && err != nil {
 		return nil, err
 	}
-	err := c.getJSON(rover, options, result)
+	err := c.getJSON(rover, options, &result)
 	if err != nil {
 		return nil, err
 	}
