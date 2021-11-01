@@ -23,6 +23,29 @@ var spiritAPI = &apiConfig{
 	path: "/mars-photos/api/v1/rovers/spirit/photos",
 }
 
+var manifestAPI = &apiConfig{
+	host: "https://api.nasa.gov",
+	path: "/mars-photos/api/v1/manifests",
+}
+
+type ManifestResult struct {
+	PhotoManifest struct {
+		Name        string `json:"name"`
+		LandingDate string `json:"landing_date"`
+		LaunchDate  string `json:"launch_date"`
+		Status      string `json:"status"`
+		MaxSol      int    `json:"max_sol"`
+		MaxDate     string `json:"max_date"`
+		TotalPhotos int    `json:"total_photos"`
+		Photos      []struct {
+			Sol         int      `json:"sol"`
+			EarthDate   string   `json:"earth_date"`
+			TotalPhotos int      `json:"total_photos"`
+			Cameras     []string `json:"cameras"`
+		} `json:"photos"`
+	} `json:"photo_manifest"`
+}
+
 type RoverResult struct {
 	Photos []struct {
 		ID     int `json:"id"`
@@ -73,27 +96,51 @@ func (r *RoverOptions) params() url.Values {
 }
 
 func (c *Client) SpiritRover() (*RoverResult, error) {
-	return c.helper(spiritAPI, nil)
+	return c.roverHelper(spiritAPI, nil)
 }
 func (c *Client) SpiritRoverWOpt(options *RoverOptions) (*RoverResult, error) {
-	return c.helper(spiritAPI, options)
+	return c.roverHelper(spiritAPI, options)
+}
+func (c *Client) SpiritManifest() (*ManifestResult, error) {
+	manifest := manifestAPI
+	manifest.path = manifest.path + "/spirit"
+	return c.manifestHelper(manifest)
 }
 
 func (c *Client) CuriosityRover() (*RoverResult, error) {
-	return c.helper(curiosityAPI, nil)
+	return c.roverHelper(curiosityAPI, nil)
 }
 func (c *Client) CuriosityRoverWOpt(options *RoverOptions) (*RoverResult, error) {
-	return c.helper(curiosityAPI, options)
+	return c.roverHelper(curiosityAPI, options)
+}
+func (c *Client) CuriosuityManifest() (*ManifestResult, error) {
+	manifest := manifestAPI
+	manifest.path = manifest.path + "/curiosity"
+	return c.manifestHelper(manifest)
 }
 
 func (c *Client) OpportunityRover() (*RoverResult, error) {
-	return c.helper(opportunityAPI, nil)
+	return c.roverHelper(opportunityAPI, nil)
 }
 func (c *Client) OpportunityRoverWOpt(options *RoverOptions) (*RoverResult, error) {
-	return c.helper(opportunityAPI, options)
+	return c.roverHelper(opportunityAPI, options)
+}
+func (c *Client) OpportunityManifest() (*ManifestResult, error) {
+	manifest := manifestAPI
+	(*manifest).path = (*manifest).path + "/opportunity"
+	return c.manifestHelper(manifest)
 }
 
-func (c *Client) helper(rover *apiConfig, options *RoverOptions) (*RoverResult, error) {
+func (c *Client) manifestHelper(path *apiConfig) (*ManifestResult, error) {
+	var result ManifestResult
+	err := c.getJSON(path, nil, &result)
+	if err != nil {
+		return nil, err
+	}
+	return &result, nil
+}
+
+func (c *Client) roverHelper(rover *apiConfig, options *RoverOptions) (*RoverResult, error) {
 	var result RoverResult
 	if options == nil {
 		err := c.getJSON(rover, options, &result)
