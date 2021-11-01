@@ -97,7 +97,9 @@ func (c *Client) get(config *apiConfig, apiReq apiRequest) (*http.Response, erro
 		return nil, err
 	}
 
-	httpReq.URL.RawQuery = c.generateQuery(apiReq.params())
+	if apiReq != nil {
+		httpReq.URL.RawQuery = c.generateQuery(apiReq.params())
+	}
 
 	return c.httpClient.Do(httpReq)
 }
